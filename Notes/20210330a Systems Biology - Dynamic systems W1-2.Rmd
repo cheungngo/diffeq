@@ -1,0 +1,226 @@
+---
+title: "20210330a Systems Biology - Dynamic systems W1-2"
+author: "cheungngo"
+date: "30 March 2021"
+output: html_document
+---
+
+```{r}
+library(deSolve)
+library(Deriv)
+library(Ryacas)
+```
+
+
+### Question:
+
+#### dx/dt = a - bx
+#### x(t=0) = c
+
+```{r}
+a = 20; b = 2; c = 5
+yini = c(x = 5)
+
+example = function (t, y, parms) {
+  with(as.list(y), {
+    dx = a - b*x
+    list(c(dx))
+  })
+}
+
+times = seq(0,1,0.05)
+
+out <- ode(y = yini, times = times, func = example, parms = NULL)
+```
+
+```{r}
+plot(out)
+```
+
+### Two variable system
+
+#### Bier model of yeast glycolytic oscillations
+
+```{r}
+V = 0.36; ki = 0.02; kp = 6
+km = 13
+yini = c(A = 4, G = 3)
+
+bier = function(t, y, parms) {
+  with(as.list(y), {
+    dA = 2 * ki * G * A - (kp * A / (A + km))
+    dG = V - ki * G * A
+    list(c(dA, dG))
+  })
+}
+
+times = seq(0,1000,0.05)
+
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+
+plot(out)
+
+plot(out[,2],out[,3]) # the "Phase-plane"
+
+max(out[,2]); max(out[,3])
+```
+
+```{r}
+km = 20
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+
+# Fixed point stability can be determined by calculating the eigenvalues of the Jacobian matrix, evaluated at the fixed point.
+
+# as shown in the later graph, as the circle is filled, the fixed point is stable
+```
+
+### The quiz
+
+```{r}
+# Which of the following would lead to sustained oscillation
+
+V = 0.7; ki = 0.01; kp = 2; km = 23
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+
+V = 0.01; ki = 0.01; kp = 6; km = 20
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+
+V = 0.36; ki = 0.02; kp = 6; km = 50
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+
+V = 0.1; ki = 0.01; kp = 3; km = 12
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+```
+
+```{r}
+# Which of the following parameter sets will lead to oscillatory behavior in ATP and Glucose concentrations with higher frequency compared to the other choices?
+
+V = 0.36; ki = 0.02; kp = 6; km = 15
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+
+V = 0.36; ki = 0.02; kp = 6; km = 10
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+
+V = 0.2; ki = 0.02; kp = 5; km = 13
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+
+V = 0.36; ki = 0.02; kp = 5; km = 7
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+```
+
+```{r}
+# Which of the following parameter sets will lead to oscillatory behavior in ATP and Glucose concentrations with higher amplitude compared to the other choices?
+
+V = 0.36; ki = 0.02; kp = 6; km = 9
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+
+V = 0.36; ki = 0.02; kp = 4; km = 15
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+
+V = 0.1; ki = 0.02; kp = 6; km = 12
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+
+V = 0.2; ki = 0.02; kp = 5; km = 13
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+```
+
+```{r}
+# Which of the following parameter sets will lead to damped oscillation in ATP and Glucose concentrations?
+
+# You may need to extend the simulation time to 2000 seconds
+
+times = seq(0,2000,0.05)
+
+V = 0.36; ki = 0.01; kp = 6; km = 13
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+
+V = 0.5; ki = 0.02; kp = 6; km = 12
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+
+V = 0.3; ki = 0.02; kp = 6; km = 18
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+
+V = 0.36; ki = 0.01; kp = 7; km = 13
+out <- ode(y = yini, times = times, func = bier, parms = NULL)
+plot(out)
+plot(out[,2],out[,3])
+```
+
+```{r}
+# The effect of varying V
+
+ki = 0.02; kp = 6; km = 13
+Vx = seq(0, 1.3, 0.1)
+
+for (i in 1:14) {
+  V = Vx[i]
+  out <- ode(y = yini, times = times, func = bier, parms = NULL)
+  plot(out)
+  plot(out[,2],out[,3])
+}
+```
+
+```{r}
+# The effect of varying Km
+
+ki = 0.02; kp = 6; V = 0.36
+kmx = c(12,14,17)
+
+for (i in kmx) {
+  km = i
+  out <- ode(y = yini, times = times, func = bier, parms = NULL)
+  plot(out)
+  plot(out[,2],out[,3])
+}
+```
+
+```{r}
+# Generating the bifurcation diagram
+
+ki = 0.02; kp = 6; km = 13
+Vx = seq(0, 1.6, 0.1)
+Gmax = c(); Gmin = c()
+
+for (i in Vx) {
+  V = i
+  out <- ode(y = yini, times = times, func = bier, parms = NULL)
+  Gmax = c(Gmax, max(out[35000:40001,3]))
+  Gmin = c(Gmin, min(out[35000:40001,3]))
+}
+
+plot(Gmax~Vx)
+lines(Gmin~Vx)
+```
+
