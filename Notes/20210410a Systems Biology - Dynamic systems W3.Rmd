@@ -1,0 +1,97 @@
+---
+title: "20210410a Systems Biology - Dynamic systems W3"
+author: "cheungngo"
+date: "10 April 2021"
+output: html_document
+---
+
+```{r}
+library(deSolve)
+library(Deriv)
+library(Ryacas0)
+```
+
+
+### A simple Michaelian System
+
+```{r}
+yini = c(A = 100, As = 0)
+kp = 1; km = 0.1
+
+mich = function(t, y, parms) {
+  with(as.list(y), {
+    dA = km * As - kp * A
+    dAs = kp * A - km * As
+    list(c(dA, dAs))
+  })
+}
+
+times = seq(0,10,0.05)
+
+out <- ode(y = yini, times = times, func = mich, parms = NULL)
+
+plot(out)
+
+out
+```
+
+```{r}
+# so what is the "steady-state"?
+
+dA = yacas(expression(dA = km * As - kp * A))
+dAs = yacas(expression(kp * A - km * As))
+km = Sym("km"); kp = Sym("kp"); A = Sym("A"); As = Sym("As")
+Eval(dA, list(km = 0.5, kp = 1, A = out[200,2], As = out[200,3])) # BR at steady states
+Eval(dAs, list(km = 0.5, kp = 1, A = out[200,2], As = out[200,3])) # FR at steady states
+```
+
+
+### What if Kp is a function of stimulus [S]
+
+```{r}
+yini = c(A = 100, As = 0)
+km = 0.5
+
+mich = function(t, y, parms) {
+  with(as.list(y), {
+    dA = km * As - kp * A
+    dAs = kp * A - km * As
+    list(c(dA, dAs))
+  })
+}
+
+times = seq(0,10,0.05)
+
+As_steady = c()
+for (i in 1:100) {
+  kp = i
+  out <- ode(y = yini, times = times, func = mich, parms = NULL)
+  As_steady = c(As_steady,out[200,3])
+}
+
+plot(1:100,As_steady)
+```
+
+### Michaelian system with linear feadback kf * A
+
+```{r}
+yini = c(A = 100, As = 0)
+kp = 1; km = 0.1; kf = 0.5
+
+
+mich = function(t, y, parms) {
+  with(as.list(y), {
+    dA = km * As - kp * A - kf * A
+    dAs = kp * A - km * As + kf * A
+    list(c(dA, dAs))
+  })
+}
+
+times = seq(0,10,0.05)
+
+out <- ode(y = yini, times = times, func = mich, parms = NULL)
+
+plot(out) # this looks unstable
+```
+
+
